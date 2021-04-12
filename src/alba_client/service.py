@@ -14,21 +14,20 @@ from .sign import sign
 
 class AlbaService(object):
     FIRST_CONNECTION_PROFILE = {
-        'base_url': 'https://partner.rficb.ru/',
-        'card_token_url': 'https://secure.rficb.ru/cardtoken/',
-        'card_token_test_url': 'https://test.rficb.ru/cardtoken/'
+        'base_url': 'https://pay.paymentnepal.com/',
+        'card_token_url': 'https://secure.paymentnepal.com/cardtoken/',
+        # 'card_token_test_url': 'https://test.rficb.ru/cardtoken/'
     }
     SECOND_CONNECTION_PROFILE = {
-        'base_url': 'https://partner.rficb.ru/',
-        'card_token_url': 'https://secure.rfibank.ru/cardtoken/',
-        'card_token_test_url': 'https://test.rficb.ru/cardtoken/'
+        'base_url': 'https://pay.paymentnepal.com/',
+        'card_token_url': 'https://secure.paymentnepal.com/cardtoken/',
+        # 'card_token_test_url': 'https://test.rficb.ru/cardtoken/'
     }
 
     def __init__(self, service_id, secret, connection_profile=None,
                  logger=None):
         """
-        service_id идентификатор сервиса
-        secret секретный ключ сервиса
+        secret - secret_key from service settings
         """
         self.service_id = service_id
         self.secret = secret
@@ -80,7 +79,7 @@ class AlbaService(object):
 
     def pay_types(self):
         """
-        Получение списка доступных способов оплаты для сервиса
+        Getting list of payment methods available
         """
         check = hashlib.md5(
             (text_type(self.service_id) + self.secret).encode('utf-8'))
@@ -94,16 +93,16 @@ class AlbaService(object):
                      commission=None, card_token=None, recurrent_params=None,
                      **kwargs):
         """
-        Инициация оплаты
-        pay_type способ оплаты
-        cost сумма платежа
-        name наименование товара
-        email e-mail покупателя
-        order_id идентификатор заказа
-        comment комментарий заказа
-        bank_params параметры для перевода на реквизиты
-        commission на ком лежит комиссия на абоненте или партнере
-          допустимые значение: 'partner', 'abonent'
+        Init payment
+        pay_type - payment type from payment methods list
+        cost - payment amount
+        name - payment name (for example 'Headphones JBL-00003')
+        email - customer email
+        order_id - unique id for order
+        comment - random comment for payment (addinfo)
+        bank_params - requisites params for bank transfer
+        commission - points who pays fee
+          values available: 'partner', 'abonent'
         """
         fields = {
             "cost": cost,
@@ -138,15 +137,15 @@ class AlbaService(object):
 
     def transaction_details(self, tid=None, order_id=None):
         """
-        Получение информации о транзакции
-        tid идентификатор транзакции
+        Getting transaction info
+        tid - transaction id in billing
         """
         if tid:
             params = {'tid': tid}
         elif order_id:
             params = {'order_id': order_id, 'service_id': self.service_id}
         else:
-            raise MissArgumentError('Ожидается аргумент tid или order_id')
+            raise MissArgumentError('Agrs tid or order_id expected')
 
         url = self.connection_profile['base_url'] + "alba/details/"
         params['version'] = '2.0'
@@ -176,8 +175,8 @@ class AlbaService(object):
 
     def gate_details(self, gate):
         """
-        получение информации о шлюзе
-        gate короткое имя шлюза
+        Getting gateway info
+        gate - gate short_name
         """
         url = self.connection_profile['base_url'] + "alba/gate_details/"
         params = {'version': '2.0',
@@ -189,8 +188,8 @@ class AlbaService(object):
 
     def check_callback_sign(self, post):
         """
-        Обработка нотификации
-        array $post Массив $_POST параметров
+        Callback handling
+        array $post - $_POST params array
         """
         order = ['tid', 'name', 'comment', 'partner_id', 'service_id',
                  'order_id', 'type', 'cost', 'income_total', 'income',

@@ -8,7 +8,7 @@ class AlbaCallback(object):
 
     def __init__(self, services):
         """
-        services список сервисов
+        services - services list
         """
         self.services = {
             text_type(service.service_id): service for service in services
@@ -16,25 +16,25 @@ class AlbaCallback(object):
 
     def handle(self, post):
         """
-        Обработка нотификаций
+        Callback handling
         """
         if 'service_id' not in post:
             raise AlbaException(
-                'Отсутствует обязательный параметр service_id')
+                'No required param service_id')
 
         if post['service_id'] in self.services:
             service = self.services[post['service_id']]
             if service.check_callback_sign(post):
                 self.callback(post)
             else:
-                raise AlbaException("Ошибка в подписи")
+                raise AlbaException("Sign validation error")
         else:
             raise AlbaException(
-                "Неизвестный сервис: %s" % type(post['service_id']))
+                "Unknown service: %s" % type(post['service_id']))
 
     def callback(self, data):
         """
-        Обработка callback после проверки подписи
+        Handling a callback after sign validation
         """
         if data['command'] == 'process':
             self.callback_process(data)
@@ -46,27 +46,27 @@ class AlbaCallback(object):
             self.callback_refund(data)
         else:
             raise AlbaException(
-                "Неожиданный тип уведомления: %s" % data['command'])
+                "Unexpected command type: %s" % data['command'])
 
     def callback_process(self, data):
         """
-        вызывается при любой (в том числе частичной) оплате сервиса
+        Callback for any (including partial) payment
         """
         pass
 
     def callback_success(self, data):
         """
-        вызывается при полной оплате сервиса
+        Callback for full payment
         """
 
     def callback_recurrent_cancel(self, data):
         """
-        вызывается, когда держатель карты отменил подписку на рекурренты
+        Called when customer has cancelled recurrent payments
         """
         pass
 
     def callback_refund(self, data):
         """
-        результат проведения возврата
+        Refund result callback
         """
         pass

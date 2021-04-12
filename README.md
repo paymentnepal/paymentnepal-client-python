@@ -1,15 +1,15 @@
-Библиотека для работы c Alba
+API client for Alba
 =============
 
-Библиотека содержит два базовых класса AlbaService и AlbaCallback предназначенных для наследования.
+API client implements two basic classes AlbaService and AlbaCallback to inherit.
 
-AlbaService - сервис в Alba. Позволяет получить список доступных способов оплаты, инициировать транзакцию, получать информацию о ней. Необходимо создать по экземпляру на каждый существующий сервис.
+AlbaService is a service in Alba. It allows getting list of available payment methods, init transactions, get transaction info. For that purpose a single instance for each service needs to be created.
 
-AlbaCallback - обработчик для обратного вызова от Alba. Проверяет подпись и вызывает соответствующий параметру "command" метод.
+AlbaCallback - callback handler for Alba. Checks electronic sign and calls method relevant to "command" value.
 
-В процессе работы может сработать исключение AlbaException.
+During work an AlbaException can be raised.
 
-Пример использования для инициации транзакции:
+Example of using API client to init transaction:
 
        from alba_client import AlbaService, AlbaException
 
@@ -19,34 +19,31 @@ AlbaCallback - обработчик для обратного вызова от 
        except AlbaException, e:
            print e
            
-Проверка, требуется ли 3-D secure:
+Checking if 3-D secure is needed:
 
        card3ds = response.get('3ds')
        if card3ds:
            # Требуется 3-D secure
            
-Если 3-D secure требуется, то необходимо сделать POST запрос на адрес card3ds['ACSUrl'] с параметрами:
+If 3-D secure is needed a POST request to card3ds['ACSUrl'] is sent with next params:
        
-       PaReq - с значением card3ds['PaReq']
-       MD - с значением card3ds['MD']
-       TermUrl - URL обработчика, на вашем сайте. На него будет возвращён пользователь после прохождения 
-        3DS авторизации на сайте банка-эмитента карты. Этот URL нужно сформировать так, 
-        чтобы в нём передавалась информация о транзакции: рекомендуется передавать service_id, tid и order_id 
-        (если транзакция создана с ним).
+       PaReq - with card3ds['PaReq'] value
+       MD - with card3ds['MD'] value
+       TermUrl - your site handler URL. Customer is redirected onto it after 3DS authorization at card issuer page. This URL needs to be formed to provide transaction info. Recommended are: service_id, tid and order_id (in case the transaction was created with it)
        
 
-Пример использования для обратного вызова:
+Example of using API client to use with callback:
 
        from alba_client import AlbaCallback
 
        class MyAlbaCallback(AlbaCallback):
            def callback_success(self, data):
-               # фиксирование успешной транзакции
+               # settle a successful transaction
 
        service1 = AlbaService(<service1-id>, '<service1-secret>')
        service2 = AlbaService(<service2-id>, '<service2-secret>')
        callback = MyAlbaCallback([service1, service2])
-       callback.handle(<словарь-c-POST-данными>)
+       callback.handle(<POST-data-dict>)
        
 
 

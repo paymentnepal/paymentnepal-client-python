@@ -17,10 +17,10 @@ class RecurrentParams(object):
         self.period = period
         if type_ == self.FIRST:
             if not self.url or not self.comment:
-                raise MissArgumentError('Необходимые аргументы: url и comment')
+                raise MissArgumentError('Required args: url и comment')
         elif type_ == self.NEXT:
             if not self.order_id:
-                raise MissArgumentError('Необходимый аргумент: order_id')
+                raise MissArgumentError('Required arg: order_id')
 
     @classmethod
     def first_pay(cls, url, comment):

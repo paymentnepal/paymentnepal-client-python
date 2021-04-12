@@ -13,7 +13,7 @@ DEFAULT_SIGN_EXCLUDE = ['check', 'mac', 'check_gate_internal']
 
 def sign(method, url, params, secret_key, exclude=DEFAULT_SIGN_EXCLUDE):
     """
-    Типовой метод для подписи HTTP запросов
+    Standard HTTP requests sigh method
     """
     url_parsed = urlparse(url)
     keys = [param for param in params if param not in exclude]
