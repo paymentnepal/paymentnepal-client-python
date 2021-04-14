@@ -1,7 +1,7 @@
 # coding=utf-8
 from __future__ import unicode_literals
 
-from .exceptions import AlbaException, MissArgumentError
+from .exceptions import PaymentnepalException, MissArgumentError
 
 
 class RecurrentParams(object):

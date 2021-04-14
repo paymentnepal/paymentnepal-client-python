@@ -8,11 +8,11 @@ import json
 
 from six import text_type
 
-from .exceptions import CODE2EXCEPTION, MissArgumentError, AlbaException
+from .exceptions import CODE2EXCEPTION, MissArgumentError, PaymentnepalException
 from .sign import sign
 
 
-class AlbaService(object):
+class PaymentnepalService(object):
     FIRST_CONNECTION_PROFILE = {
         'base_url': 'https://pay.paymentnepal.com/',
         'card_token_url': 'https://secure.paymentnepal.com/cardtoken/',
@@ -53,10 +53,10 @@ class AlbaService(object):
             if response.status_code != 200:
                 self.logger.debug(u'Server unavailable: {}'
                                   .format(response.status_code))
-                raise AlbaException('Сервер не доступен: {}'
-                                    .format(response.status_code))
+                raise PaymentnepalException('Сервер не доступен: {}'
+                                            .format(response.status_code))
         except requests.ConnectionError as e:
-            raise AlbaException(e)
+            raise PaymentnepalException(e)
 
         content = response.content.decode('utf-8')
         self.logger.debug('Server response: {}'.format(content))
@@ -66,7 +66,7 @@ class AlbaService(object):
             msg = json_response.get('msg', json_response.get('message'))
             code = json_response.get('code', 'unknown')
             errors = json_response.get('errors')
-            raise CODE2EXCEPTION.get(code, AlbaException)(
+            raise CODE2EXCEPTION.get(code, PaymentnepalException)(
                 msg, errors=errors)
 
         return json_response

@@ -4,13 +4,13 @@ from unittest import TestCase
 
 from six import text_type
 
-from alba_client import AlbaService, AlbaException
-from alba_client.recurrent import RecurrentParams
+from paymentnepal_client import PaymentnepalService, PaymentnepalException
+from paymentnepal_client.recurrent import RecurrentParams
 
 
 class ServiceTestCase(TestCase):
     def setUp(self):
-        self.service = AlbaService('10000', 'secret')
+        self.service = PaymentnepalService('10000', 'secret')
 
     def test_correct_create_card_token(self):
         with requests_mock.mock() as m:
@@ -25,19 +25,19 @@ class ServiceTestCase(TestCase):
     def test_wrong_create_card_token(self):
         with requests_mock.mock() as m:
             m.post(self.service.connection_profile['card_token_test_url']
-                   + 'create', exc=AlbaException('Invalid data'))
-            with self.assertRaises(AlbaException):
+                   + 'create', exc=PaymentnepalException('Invalid data'))
+            with self.assertRaises(PaymentnepalException):
                 self.service.create_card_token(
                     '4652060573334999', '01', '17', '067', test=True)
 
     def test_create_service_with_custom_connection_profile_and_loger(self):
-        service = AlbaService(
+        service = PaymentnepalService(
             '10000', 'secret',
-            connection_profile=AlbaService.SECOND_CONNECTION_PROFILE,
+            connection_profile=PaymentnepalService.SECOND_CONNECTION_PROFILE,
             logger='logger')
         self.assertEqual(
             service.connection_profile['card_token_url'],
-            AlbaService.SECOND_CONNECTION_PROFILE['card_token_url'])
+            PaymentnepalService.SECOND_CONNECTION_PROFILE['card_token_url'])
         self.assertEqual(service.logger, 'logger')
 
     def test_correct_init_payment(self):
@@ -98,7 +98,7 @@ class ServiceTestCase(TestCase):
         with requests_mock.mock() as m:
             m.post(self.service.connection_profile['base_url'] + 'alba/input/',
                    json={'status': 'success', 'tid': 100})
-            with self.assertRaises(AlbaException):
+            with self.assertRaises(PaymentnepalException):
                 recurrent_params = RecurrentParams(
                     'first', None, None, None, 'byrequest')
                 self.service.init_payment(
@@ -110,7 +110,7 @@ class ServiceTestCase(TestCase):
         with requests_mock.mock() as m:
             m.post(self.service.connection_profile['base_url'] + 'alba/input/',
                    json={'status': 'success', 'tid': 100})
-            with self.assertRaises(AlbaException):
+            with self.assertRaises(PaymentnepalException):
                 recurrent_params = RecurrentParams(
                     'next', None, None, None, None)
                 self.service.init_payment(
@@ -121,9 +121,9 @@ class ServiceTestCase(TestCase):
     def test_init_payment_wrong_phone(self):
         with requests_mock.mock() as m:
             m.post(self.service.connection_profile['base_url'] + 'alba/input/',
-                   exc=AlbaException('Данный оператор не поддерживает оплату '
+                   exc=PaymentnepalException('Данный оператор не поддерживает оплату '
                                      'мобильной коммерции'))
-            with self.assertRaises(AlbaException):
+            with self.assertRaises(PaymentnepalException):
                 self.service.init_payment(
                     'mc', 200, 'Test', 'test@test.ru', '79191234567')
 
@@ -154,7 +154,7 @@ class ServiceTestCase(TestCase):
             self.assertEqual(details['income_total'], 200)
 
     def test_get_transaction_details_without_params(self):
-        with self.assertRaises(AlbaException):
+        with self.assertRaises(PaymentnepalException):
             self.service.transaction_details()
 
     def test_get_gate_details(self):
@@ -175,7 +175,7 @@ class ServiceTestCase(TestCase):
         with requests_mock.mock() as m:
             m.post(self.service.connection_profile['base_url'] + 'alba/input/',
                    status_code=404)
-            with self.assertRaises(AlbaException):
+            with self.assertRaises(PaymentnepalException):
                 self.service.init_payment(
                     'mc', 200, 'Test', 'test@test.ru', '79091234567')
 
@@ -183,7 +183,7 @@ class ServiceTestCase(TestCase):
         with requests_mock.mock() as m:
             m.post(self.service.connection_profile['base_url'] + 'alba/input/',
                    json={'status': 'error', 'msg': 'Some error'})
-            with self.assertRaises(AlbaException):
+            with self.assertRaises(PaymentnepalException):
                 self.service.init_payment(
                     'mc', 200, 'Test', 'test@test.ru', '79091234567')
 

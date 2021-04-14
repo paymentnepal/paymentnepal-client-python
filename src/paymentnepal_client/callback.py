@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from six import text_type
 
 
-class AlbaCallback(object):
+class PaymentnepalCallback(object):
 
     def __init__(self, services):
         """
@@ -19,7 +19,7 @@ class AlbaCallback(object):
         Callback handling
         """
         if 'service_id' not in post:
-            raise AlbaException(
+            raise PaymentnepalException(
                 'No required param service_id')
 
         if post['service_id'] in self.services:
@@ -27,9 +27,9 @@ class AlbaCallback(object):
             if service.check_callback_sign(post):
                 self.callback(post)
             else:
-                raise AlbaException("Sign validation error")
+                raise PaymentnepalException("Sign validation error")
         else:
-            raise AlbaException(
+            raise PaymentnepalException(
                 "Unknown service: %s" % type(post['service_id']))
 
     def callback(self, data):
@@ -45,7 +45,7 @@ class AlbaCallback(object):
         elif data['command'] == 'refund':
             self.callback_refund(data)
         else:
-            raise AlbaException(
+            raise PaymentnepalException(
                 "Unexpected command type: %s" % data['command'])
 
     def callback_process(self, data):
